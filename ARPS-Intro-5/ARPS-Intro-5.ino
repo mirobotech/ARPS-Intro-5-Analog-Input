@@ -7,7 +7,8 @@
  This activity requires either the temperature sensor or the voltage divider
  resistors R20 and R21 (or both) to be installed in ARPS. 
 
- Additional... temperature calculations, float type, conversion between types
+ Additional program analysis and programming activities examine temperature
+ calculations, float numeric types, and conversion between types.
 */
 
 // Define I/O pins used for human interface devices
