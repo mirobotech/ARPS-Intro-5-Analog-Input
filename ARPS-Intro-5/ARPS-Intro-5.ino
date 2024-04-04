@@ -1,38 +1,39 @@
 /*
  Project: Intro-5-Analog-Input         Activity: mirobo.tech/arps-intro-5
- Date:    January 24, 2024
+ Date:    April 4, 2024
  
  This introductory programming activity for the mirobo.tech ARPS circuit
- demonstrates analog input and serial output for data output and debugging.
- This activity requires either the temperature sensor or the voltage divider
- resistors R20 and R21 (or both) to be installed in ARPS. 
+ demonstrates analog input and serial output for data output or to assist
+ in debugging. This activity requires either the temperature sensor or the
+ voltage divider resistors R20 and R21 (or both) to be installed in ARPS. 
 
  Additional program analysis and programming activities examine temperature
- calculations, float numeric types, and conversion between types.
+ calculations, float numeric types, and conversion between numeric types.
+
+ See the https://mirobo.tech/arps website for more programming activities.
 */
 
-// Define I/O pins used for human interface devices
-const int SW2 = 0;      // ARPS pushbuttons SW2 and SW3 are supported on
-const int SW3 = 1;      // Arduino UNO R4 Minima and Arduino UNO R4 WiFi
-const int SW4 = 2;      // ARPS pushbuttons SW4 and SW5 work on all
-const int SW5 = 3;      // Arduino UNO R3 and Arduino UNO R4 circuit boards
+// Define I/O pins used by ARPS human interface devices
+const int SW2 = 0;      // Pushbuttons SW2 and SW3 are supported on Arduino
+const int SW3 = 1;      // UNO R4 Minima and Arduino UNO R4 WiFi
+const int SW4 = 2;      // Pushbuttons SW4 and SW5 work on all Arduino UNO R3
+const int SW5 = 3;      // and Arduino UNO R4 circuit boards
 
-const int LED2 = 5;     // ARPS top-side LEDs
+const int LED2 = 5;     // ARPS LEDs
 const int LED3 = 6;
 const int LED4 = 9;
 const int LED5 = 10;
 
 const int BEEPER = 11;  // ARPS Piezo beeper LS1
-const int onboardLED = 13;  // Arduino on-board LED
 
 const int VTMP = A2;    // ARPS temperature sensor Vout
 const int VDIV = A3;    // ARPS voltage divider Vout
 
 // Define program variables
-int SW2state;
-int SW3state;
-int SW4state;
-int SW5state;
+int SW2State;
+int SW3State;
+int SW4State;
+int SW5State;
 
 int dec0;       // Decimal number digit 0 - ones digit (LSB)
 int dec1;       // Decimal number digit 1 - tens digit
@@ -43,7 +44,6 @@ int tempDegC;   // Temperature in degrees C
 float volts;    // Voltage divider output voltage
 
 void setup() {
-  pinMode(onboardLED,OUTPUT);
   pinMode(SW2,INPUT_PULLUP);
   pinMode(SW3,INPUT_PULLUP);
   pinMode(SW4,INPUT_PULLUP);
@@ -53,6 +53,7 @@ void setup() {
   pinMode(LED4,OUTPUT);
   pinMode(LED5,OUTPUT);
   pinMode(BEEPER,OUTPUT);
+  pinMode(LED_BUILTIN,OUTPUT);
 
   pinMode(VTMP,INPUT);
   pinMode(VDIV,INPUT);
@@ -113,30 +114,29 @@ void binToDec(unsigned char bin)
 
  *      Every time the 'Serial.println(rawTemp);' statement is executed, it
  *      will print a new line containing the rawTemp variable converted from
- *      the temperature sensor by the ADC. Build and upload the program into
- *      your circuit, and then click on the Serial Monitor icon at the top
- *      right of the IDE screen. The Serial monitor should open in a tab 
- *      beside the output tab at the bottom of the screen, and a new number 
- *      should appear there every second representing the conversion result.
- *      What is your result? Grab and hold the temperature sensor with your
- *      fingers. Does your result change?
+ *      the temperature sensor by the ADC (Analog-to-Digital Converter).
+ *      Build and upload the program into your circuit, and then click on the
+ *      Serial Monitor icon at the top right of the IDE screen. The Serial
+ *      monitor should open in a tab beside the output tab at the bottom of
+ *      the screen, and a new number should appear every second representing
+ *      the latest conversion result. What are your results? Grab and hold the
+ *      temperature sensor with your fingers. Do your results change?
 
- * 2.   The ADC (analog-to-digital converter) in the Arduino UNO quantizes input
- *      voltages between 0 - 5V into 10-bit (binary) numbers representing the
- *      input voltage. How many different states or numbers can be represented
- *      using 10 binary bits?
+ * 2.   The ADC in the Arduino UNO quantizes input voltages between 0 and 5V
+ *      into 10-bit (binary) numbers representing the input voltage. How many
+ *      different states or numbers can be represented using 10 binary bits?
  *
- * 3.   Calculate the amount of input voltage change necessary to cause a 1-bit,
- *      or single digit change in the converted output result when using 10 bits
- *      to convert a 5V range.
+ * 3.   Calculate the amount of input voltage change necessary to cause a 1-bit
+ *      (or single binary digit) change in the converted output result when
+ *      using 10 bits to represent a 5V input range.
  *
  * 4.   The analog temperature sensor used in ARPS has a temperature coefficient
  *      of 10mV/°C, meaning that it produces an output voltage that increases by
- *      10mV for every 1°C change in temperature. The sensor also has a built-in
- *      offset voltage to move its minimum temperature output above 0V, helping
- *      to improve its linearity at low temperatures. What this means is that we
- *      will need to develop an algorithm to convert the analog voltage input
- *      from the temperature sensor into a useful temperature for display.
+ *      10mV for every 1°C rise in temperature. The sensor has a built-in offset
+ *      voltage to allow its minimum temperature to be below 0°C, as well as to
+ *      help improve its output linearity. What this means is that we will need
+ *      to develop an algorithm to convert the analog voltage input from the
+ *      temperature sensor into a useful temperature that we can use or display.
  *
  *      Based on the information above, calculating the actual temperature
  *      should be as simple as removing the offset, and then scaling the 
@@ -175,11 +175,11 @@ void binToDec(unsigned char bin)
 
  *      Rather than just outputting a number, the Serial.print() functions will
  *      now build a line of text, starting with the string 'rawTemp: ', adding
- *      the value of the rawTemp variable, inserting a tab ('\t') as a known
- *      space, printing the string 'Temp: ', adding the converted temperature,
- *      and finishing with the letter 'C'. Notice that the last statement uses
- *      the Serial.println() function, finishing the current line of text
- *      output, and starting a new line for the next Serial.print() function.
+ *      the value of the rawTemp variable, inserting a tab ('\t') character,
+ *      printing the string 'Temp: ', adding the converted temperature, and
+ *      finishing with the letter 'C'. Notice that the last statement uses the
+ *      Serial.println() function, which finishes the current line of text
+ *      output and starts a new line for the next Serial.print() function.
  *
  * 5.   The ARPS voltage divider resistors were chosen to produce a voltage
  *      coefficient scaled for an 8-bit ADC. What is the maximum value that
@@ -246,16 +246,20 @@ void binToDec(unsigned char bin)
  *
  * 3.   ARPS can sense its optical floor sensors using either digital or
  *      analog inputs. If you plan on using ARPS to make a floor or line 
- *      sensing robot, using analog input can provide some advantages. Create
- *      a function that reads the left and right floor or line sensors in
- *      analog mode and returns digital values representing whether or not
- *      each floor sensor's level has crossed a user-determined threshold.
+ *      sensing robot, using analog input provides some advantages over
+ *      digital input. Create a function that reads the left and right floor
+ *      or line sensors in analog mode and returns digital values representing
+ *      whether or not each floor sensor's light level has crossed a user-
+ *      determined threshold.
  *      
  *      After building the robot and installing the sensors, the serial
- *      monitor can be used to determine an appropriate threshold value.
+ *      monitor can be used to set appropriate light threshold values for the
+ *      floor sensors based on the distance they are mounted away from the
+ *      floor and the reflectivity of the floor surface.
  *
  * 4.   Analog inputs can be used to control analog outputs through servo
  *      pulses, PWM, or by using the analogWrite() function. Create a program
- *      for a line-following robot that feeds analog line sensor inputs into
- *      analog motor outputs.
+ *      for a line-following robot that uses analog line sensor inputs to
+ *      determine analog motor outputs, or a program that rotates a servo 
+ *      based on the amount of the amount of light or temperature input.
  */
